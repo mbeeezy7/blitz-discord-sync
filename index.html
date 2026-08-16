@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BLITZ LEAGUE — College Football 27</title>
+<style>
+  :root{
+    --bg:#05080f; --panel:#0f1626; --panel2:#0a0f1c; --line:#1c2740;
+    --txt:#eaf0fb; --muted:#8390ad; --accent:#e2202d; --accent2:#3a6bff;
+    --win:#2ecc71; --loss:#ff4d4d; --gold:#cfe0ff;
+    --font:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--font);
+    background-image:radial-gradient(1100px 420px at 82% -10%,rgba(226,32,45,.16),transparent),
+      radial-gradient(1000px 460px at -8% 0%,rgba(58,107,255,.18),transparent);}
+  a{color:var(--accent2);text-decoration:none}
+  header{padding:30px 20px 10px;text-align:center;border-bottom:1px solid var(--line);position:relative}
+  .brandImg{max-width:480px;width:80%;height:auto;filter:drop-shadow(0 6px 24px rgba(58,107,255,.35))}
+  .logo{font-size:58px;font-weight:900;letter-spacing:8px;line-height:1;font-style:italic;
+    color:#3a6bff;text-shadow:0 0 2px #9bb4ff,2px 2px 0 #11183a,-1px -1px 0 #e2202d,0 0 22px rgba(58,107,255,.6)}
+  .tag{color:#cfe0ff;letter-spacing:5px;font-size:13px;margin-top:10px;text-transform:uppercase;font-weight:700}
+  .platforms{margin-top:10px;font-size:12px;color:var(--muted)}
+  .platforms span{border:1px solid var(--line);border-radius:20px;padding:3px 10px;margin:0 4px}
+  nav{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;padding:14px;position:sticky;top:0;
+    background:rgba(5,8,15,.92);backdrop-filter:blur(8px);z-index:10;border-bottom:1px solid var(--line)}
+  nav button{background:transparent;color:var(--muted);border:1px solid transparent;border-radius:8px;
+    padding:9px 16px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase}
+  nav button:hover{color:var(--txt)}
+  nav button.active{color:#fff;background:linear-gradient(90deg,var(--accent2),var(--accent));box-shadow:0 4px 16px rgba(58,107,255,.4)}
+  main{max-width:980px;margin:0 auto;padding:24px 16px 80px}
+  section{display:none;animation:fade .25s ease}
+  section.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h2{font-size:24px;letter-spacing:2px;text-transform:uppercase;margin:8px 0 18px;
+    border-left:4px solid var(--accent);padding-left:12px}
+  .status{font-size:11px;color:var(--muted);text-align:right;max-width:980px;margin:6px auto -10px;padding:0 16px}
+  .status .live{color:var(--win)} .status .local{color:var(--gold)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:12px 10px;text-align:center}
+  th{background:var(--panel2);color:var(--muted);text-transform:uppercase;font-size:11px;letter-spacing:1px}
+  td.name,th.name{text-align:left;font-weight:700}
+  tbody tr{border-top:1px solid var(--line)}
+  tbody tr:hover{background:#13203a}
+  .rank{font-weight:900;color:var(--muted)}
+  .rank.r1{color:var(--gold)} .rank.r2{color:#cfd6df} .rank.r3{color:#cd7f32}
+  .teamlogo{width:20px;height:20px;object-fit:contain;vertical-align:middle;margin-right:6px}
+  .w{color:var(--win)} .l{color:var(--loss)}
+  .streak{font-weight:800}
+  .game{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-top:1px solid var(--line);flex-wrap:wrap}
+  .game:first-child{border-top:none}
+  .matchup{display:flex;align-items:center;gap:12px;font-weight:700}
+  .score{font-size:20px;font-weight:900}
+  .meta{color:var(--muted);font-size:12px}
+  .badge{font-size:10px;letter-spacing:1px;border:1px solid var(--line);border-radius:20px;padding:2px 8px;color:var(--muted);text-transform:uppercase}
+  .vidlink{font-size:12px;font-weight:800;color:var(--accent)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .vid{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .vid .embed{position:relative;padding-top:56.25%;background:#000}
+  .vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .vid .cap{padding:12px 14px}
+  .vid .cap h4{margin:0 0 4px;font-size:15px}
+  .vid .cap p{margin:0;color:var(--muted);font-size:12px}
+  .talk{display:flex;gap:12px;padding:16px;border-top:1px solid var(--line)}
+  .talk:first-child{border-top:none}
+  .avatar{width:42px;height:42px;border-radius:50%;flex:0 0 42px;display:flex;align-items:center;justify-content:center;
+    font-weight:900;color:#05080f;font-size:16px}
+  .talk .body{flex:1}
+  .talk .who{font-weight:800;font-size:14px}
+  .talk .when{color:var(--muted);font-size:11px;margin-left:8px;font-weight:400}
+  .talk .msg{margin-top:4px;font-size:14px;color:#d7dee6}
+  .empty{padding:30px;text-align:center;color:var(--muted)}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:30px 16px;border-top:1px solid var(--line)}
+  .seasonbar{display:flex;align-items:center;gap:10px;margin:0 0 14px;flex-wrap:wrap}
+  .seasonbar label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .seasonbar select{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:8px;
+    padding:7px 12px;font-size:14px;font-weight:700;cursor:pointer}
+  .hint{font-size:12px;color:var(--muted);margin-left:auto}
+  tbody tr.clickable{cursor:pointer}
+  .modal{position:fixed;inset:0;background:rgba(3,6,12,.78);backdrop-filter:blur(4px);
+    display:none;align-items:flex-start;justify-content:center;z-index:50;padding:40px 14px;overflow:auto}
+  .modal.show{display:flex}
+  .modal-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:680px;width:100%;
+    padding:22px 22px 26px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .modal-x{position:absolute;top:12px;right:14px;background:transparent;border:0;color:var(--muted);
+    font-size:26px;line-height:1;cursor:pointer}
+  .modal-x:hover{color:var(--txt)}
+  .modal-card h3{margin:0 0 4px;font-size:22px}
+  .h2h-overall{color:var(--muted);font-size:13px;margin-bottom:16px}
+  .h2h-overall b{color:var(--txt)}
+  .h2h-table{margin-top:6px}
+  .h2h-table td{padding:10px}
+  .h2h-score{display:inline-block;font-weight:800;font-size:12px;border:1px solid var(--line);
+    border-radius:6px;padding:2px 6px;margin:2px 2px}
+  .h2h-score.w{color:var(--win);border-color:rgba(46,204,113,.4)}
+  .h2h-score.l{color:var(--loss);border-color:rgba(255,77,77,.4)}
+  .h2h-score.jump{cursor:pointer;transition:transform .1s ease,border-color .1s ease}
+  .h2h-score.jump:hover{border-color:var(--accent2);color:var(--gold);transform:translateY(-1px)}
+  .game.flash{animation:flashgame 1.8s ease}
+  @keyframes flashgame{0%{background:rgba(58,107,255,.45)}40%{background:rgba(58,107,255,.25)}100%{background:transparent}}
+  @media(max-width:560px){.logo{font-size:40px}.score{font-size:17px}.hint{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <!-- Drop a file named logo.png in this folder and it auto-appears here. -->
+  <img class="brandImg" src="logo.png" alt="BLITZ LEAGUE"
+       onerror="this.style.display='none';document.getElementById('logoFallback').style.display='block'">
+  <div id="logoFallback" style="display:none"><div class="logo">BLITZ</div></div>
+  <div class="tag">More Than A League</div>
+  <div class="platforms"><span>🏈 EA College Football 27</span><span>🎮 PS5</span><span>🎮 XBOX</span></div>
+</header>
+
+<nav>
+  <button data-tab="standings" class="active">Standings</button>
+  <button data-tab="schedule">Schedule &amp; Results</button>
+  <button data-tab="highlights">Highlights</button>
+  <button data-tab="trash">Trash Talk</button>
+</nav>
+
+<div class="status" id="dataStatus"></div>
+
+<main>
+  <section id="standings" class="active">
+    <h2>Standings</h2>
+    <div class="seasonbar">
+      <label for="seasonSelect">Season</label>
+      <select id="seasonSelect"></select>
+      <span class="hint">Tip: click a player for head-to-head record</span>
+    </div>
+    <div class="panel">
+      <table>
+        <thead><tr>
+          <th>#</th><th class="name">Player</th><th>W</th><th>L</th><th>PCT</th>
+          <th>PF</th><th>PA</th><th>DIFF</th><th>STRK</th>
+        </tr></thead>
+        <tbody id="standingsBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="schedule">
+    <h2>Schedule &amp; Results</h2>
+    <div class="panel" style="margin-bottom:20px"><div id="upcoming"></div></div>
+    <h2 style="font-size:18px;border-color:var(--accent2)">Final Scores</h2>
+    <div class="panel"><div id="results"></div></div>
+  </section>
+
+  <section id="highlights">
+    <h2>Highlights</h2>
+    <div class="grid" id="videos"></div>
+  </section>
+
+  <section id="trash">
+    <h2>Trash Talk Wall</h2>
+    <div class="panel"><div id="trashWall"></div></div>
+  </section>
+</main>
+
+<div id="h2hModal" class="modal" onclick="if(event.target===this)closeH2H()">
+  <div class="modal-card">
+    <button class="modal-x" onclick="closeH2H()">&times;</button>
+    <div id="h2hBody"></div>
+  </div>
+</div>
+
+<footer>BLITZ League &middot; Live data from Google Sheets &middot; Run on Discord for live chatter</footer>
+
+<script>
+/* =====================================================================
+   STEP 1 CONFIG — paste your published Google Sheet CSV links here.
+   Leave them blank to use the built-in data below.
+   (How to get these links: see the instructions I gave you.)
+   ===================================================================== */
+// Paste your published CSV links here in ANY order — the site figures out
+// which tab is which by reading each sheet's column headers.
+const SHEET_URLS = [
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJBahWCboai4LEPBmCA9MiR47r3tMOq7byLNEF8wqXW06xehq27Bwl2s3P55NiNOtEdgjtcDcAP2CP/pub?gid=2019138337&single=true&output=csv",
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJBahWCboai4LEPBmCA9MiR47r3tMOq7byLNEF8wqXW06xehq27Bwl2s3P55NiNOtEdgjtcDcAP2CP/pub?gid=1375584928&single=true&output=csv",
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJBahWCboai4LEPBmCA9MiR47r3tMOq7byLNEF8wqXW06xehq27Bwl2s3P55NiNOtEdgjtcDcAP2CP/pub?gid=1323853927&single=true&output=csv",
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJBahWCboai4LEPBmCA9MiR47r3tMOq7byLNEF8wqXW06xehq27Bwl2s3P55NiNOtEdgjtcDcAP2CP/pub?gid=1569029342&single=true&output=csv",
+];
+
+/* =====================================================================
+   BUILT-IN FALLBACK DATA — used only if the SHEETS links above are blank
+   or fail to load. Once your sheet is connected you can ignore this.
+   ===================================================================== */
+let PLAYERS = [
+  { name:"Gee", team:"Ohio State", console:"", logo:"" },
+  { name:"Tad", team:"Texas", console:"", logo:"" },
+  { name:"Brooks", team:"Georgia", console:"", logo:"" },
+  { name:"Ldee", team:"Miami", console:"", logo:"" },
+  { name:"Rav", team:"Oregon", console:"", logo:"" },
+  { name:"Percy", team:"Notre Dame", console:"", logo:"" },
+  { name:"Dre", team:"Alabama", console:"", logo:"" },
+  { name:"Yae", team:"LSU", console:"", logo:"" },
+  { name:"LJ", team:"Texas A&M", console:"", logo:"" },
+  { name:"Pearle", team:"Oklahoma", console:"", logo:"" },
+  { name:"King Rio", team:"Michigan", console:"", logo:"" },
+  { name:"Mace", team:"Tennessee", console:"", logo:"" },
+  { name:"Scooter", team:"Texas Tech", console:"", logo:"" },
+  { name:"Reese", team:"Ole Miss", console:"", logo:"" },
+  { name:"Oen", team:"Clemson", console:"", logo:"" },
+  { name:"Fill", team:"Rutgers", console:"", logo:"" },
+  { name:"Mir", team:"USC", console:"", logo:"" },
+  { name:"Truth", team:"Florida State", console:"", logo:"" },
+  { name:"Mutt", team:"Penn State", console:"", logo:"" },
+  { name:"Mark", team:"UCLA", console:"", logo:"" },
+  { name:"Mike", team:"Florida", console:"", logo:"" },
+  { name:"Poody", team:"Nebraska", console:"", logo:"" },
+  { name:"Lo", team:"Indiana", console:"", logo:"" },
+  { name:"Jlust", team:"Utah", console:"", logo:"" },
+  { name:"Blaze", team:"South Carolina", console:"", logo:"" },
+  { name:"Ike", team:"Virginia Tech", console:"", logo:"" },
+  { name:"Rob", team:"Georgia Tech", console:"", logo:"" },
+  { name:"Jacks", team:"Auburn", console:"", logo:"" },
+  { name:"UT", team:"Washington", console:"", logo:"" },
+  { name:"Kerry", team:"Iowa", console:"", logo:"" },
+  { name:"Swag", team:"Arizona State", console:"", logo:"" },
+  { name:"Soy", team:"UNC", console:"", logo:"" },
+];
+let GAMES = [];
+let UPCOMING = [];
+let VIDEOS = [];
+let TRASH = [ { who:"League", when:"Preseason", msg:"32 teams locked in. Season's about to kick off. Talk your talk." } ];
+
+/* =====================================================================
+   ENGINE — no need to edit below.
+   ===================================================================== */
+const $ = s => document.querySelector(s);
+const byName = n => PLAYERS.find(p => p.name === n) || { name:n, team:"?", console:"?", logo:"" };
+/* ---- team-name normalizer: maps abbreviations / nicknames / case
+   variants (FSU, Bama, ND, "Ohio st") to the exact roster name so
+   games still count in standings instead of silently dropping ---- */
+const TEAM_ALIASES = {"fsu":"Florida State","florida st":"Florida State","bama":"Alabama","roll tide":"Alabama","missouri":"Mizzou","mizz":"Mizzou","georgia":"UGA","dawgs":"UGA","nd":"Notre Dame","vt":"Virginia Tech","va tech":"Virginia Tech","gt":"Georgia Tech","ga tech":"Georgia Tech","scar":"South Carolina","gamecocks":"South Carolina","penn st":"Penn State","psu":"Penn State","ohio st":"Ohio State","osu":"Ohio State","tamu":"Texas A&M","aggies":"Texas A&M","ttu":"Texas Tech"};
+function nrmTeam_(s){ return (s||"").toLowerCase().replace(/\./g,"").replace(/\s+/g," ").trim(); }
+function resolveTeam_(raw){
+  if(!raw) return raw;
+  const key=nrmTeam_(raw);
+  for(const p of PLAYERS){ if(nrmTeam_(p.name)===key) return p.name; }
+  const alias=TEAM_ALIASES[key];
+  if(alias && PLAYERS.some(p=>p.name===alias)) return alias;
+  return raw;
+}
+const logoTag = p => p && p.logo ? `<img class="teamlogo" src="${p.logo}" alt="" onerror="this.style.display='none'">` : "";
+
+/* ---- seasons ---- */
+let currentSeason = "All-Time";
+function seasonsList(){
+  const s=[...new Set(GAMES.map(g=>(g.season||"").trim()).filter(Boolean))];
+  s.sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  return s;
+}
+function gamesForSeason(){
+  if(currentSeason==="All-Time") return [...GAMES];
+  return GAMES.filter(g=>(g.season||"").trim()===currentSeason);
+}
+function populateSeasons(){
+  const sel=$("#seasonSelect"); if(!sel) return;
+  const seasons=seasonsList();
+  const bar=document.querySelector(".seasonbar");
+  if(!seasons.length){ if(bar) bar.style.display="none"; currentSeason="All-Time"; return; }
+  if(bar) bar.style.display="flex";
+  if(currentSeason!=="All-Time" && !seasons.includes(currentSeason)) currentSeason=seasons[seasons.length-1];
+  else if(sel.dataset.init!=="1") currentSeason=seasons[seasons.length-1]; // default to latest season first load
+  sel.innerHTML=[...seasons.map(s=>`<option value="${s}">${s}</option>`),`<option value="All-Time">All-Time</option>`].join("");
+  sel.value=currentSeason;
+  if(sel.dataset.init!=="1"){ sel.addEventListener("change",()=>{ currentSeason=sel.value; renderStandings(); renderResults(); }); sel.dataset.init="1"; }
+}
+
+/* ---- CSV reading ---- */
+function parseCSV(text){
+  const rows=[]; let row=[],cur="",q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else { if(c==='"') q=true;
+      else if(c===',' ){ row.push(cur); cur=""; }
+      else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=""; }
+      else if(c==='\r'){}
+      else cur+=c; }
+  }
+  if(cur!==""||row.length){ row.push(cur); rows.push(row); }
+  return rows;
+}
+function toObjects(text){
+  const rows=parseCSV(text).filter(r=>r.some(c=>(c||"").trim()!==""));
+  if(rows.length<1) return [];
+  const head=rows[0].map(h=>h.trim().toLowerCase().replace(/\s+/g,"_"));
+  return rows.slice(1).map(r=>{ const o={}; head.forEach((h,i)=>o[h]=(r[i]||"").trim()); return o; });
+}
+async function fetchCSV(url){
+  const res=await fetch(url,{cache:"no-store"});
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  return toObjects(await res.text());
+}
+function toEmbed(url){
+  if(!url) return url;
+  let m=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtube\.com\/live\/|m\.youtube\.com\/watch\?v=)([\w-]+)/);
+  if(m) return "https://www.youtube.com/embed/"+m[1];
+  m=url.match(/twitch\.tv\/videos\/(\d+)/);
+  if(m) return "https://player.twitch.tv/?video="+m[1]+"&parent="+location.hostname;
+  m=url.match(/clips\.twitch\.tv\/([\w-]+)/)||url.match(/twitch\.tv\/\w+\/clip\/([\w-]+)/);
+  if(m) return "https://clips.twitch.tv/embed?clip="+m[1]+"&parent="+location.hostname;
+  return url;
+}
+
+/* ---- figure out which tab a CSV is, from its column headers ---- */
+function classify(keys){
+  const k=new Set(keys);
+  if(k.has("home")&&k.has("away")) return "games";
+  if(k.has("url")) return "highlights";
+  if(k.has("message")||k.has("msg")) return "trash";
+  if(k.has("team")) return "players";
+  return null;
+}
+
+/* ---- load from sheets (any order), fall back to built-in ---- */
+async function loadData(){
+  const configured=SHEET_URLS.filter(u=>u&&u.trim());
+  const routed={}; let ok=false;
+  for(const url of configured){
+    try{ const rows=await fetchCSV(url); if(!rows.length) continue;
+      const type=classify(Object.keys(rows[0])); if(type) routed[type]=rows;
+    }catch(e){ console.warn("Failed to load",url,e); }
+  }
+  if(routed.players){ PLAYERS=routed.players.map(r=>({name:r.name,team:r.team||"",console:r.console||"",logo:r.logo||""})).filter(p=>p.name); ok=true; }
+  if(routed.games){ GAMES=[]; UPCOMING=[];
+    routed.games.forEach(r=>{ if(!r.home||!r.away) return;
+      const hs=r.home_score, as=r.away_score;
+      const done = hs!==""&&as!==""&&!isNaN(+hs)&&!isNaN(+as);
+      if(done) GAMES.push({date:r.date||"",home:resolveTeam_(r.home),away:resolveTeam_(r.away),hs:+hs,as:+as,video:r.video||"",season:(r.season||"").trim()});
+      else UPCOMING.push({date:r.date||"",home:resolveTeam_(r.home),away:resolveTeam_(r.away),time:r.time||""});
+    }); ok=true; }
+  if(routed.highlights){ VIDEOS=routed.highlights.map(r=>({title:r.title||"Highlight",by:r.by||"",url:r.url})).filter(v=>v.url); ok=true; }
+  if(routed.trash){ TRASH=routed.trash.map(r=>({who:r.who||"?",when:r.when||"",msg:r.msg||r.message||""})).filter(t=>t.msg); ok=true; }
+  const st=$("#dataStatus");
+  if(!configured.length) st.innerHTML='<span class="local">● Using built-in data — connect your Google Sheet in the code to go live</span>';
+  else if(ok) st.innerHTML='<span class="live">● Live from Google Sheets</span>';
+  else st.innerHTML='<span class="local">● Sheet unreachable — showing last built-in data (check the sheet is Published to web)</span>';
+  renderAll();
+}
+
+/* ---- standings math ---- */
+function computeStandings(){
+  const t={};
+  PLAYERS.forEach(p=> t[p.name]={name:p.name,team:p.team,logo:p.logo||"",w:0,l:0,tie:0,pf:0,pa:0,results:[]});
+  const g=gamesForSeason().sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+  g.forEach(m=>{
+    if(!t[m.home]||!t[m.away]) return;
+    t[m.home].pf+=m.hs; t[m.home].pa+=m.as; t[m.away].pf+=m.as; t[m.away].pa+=m.hs;
+    if(m.hs>m.as){ t[m.home].w++; t[m.away].l++; t[m.home].results.push("W"); t[m.away].results.push("L"); }
+    else if(m.as>m.hs){ t[m.away].w++; t[m.home].l++; t[m.away].results.push("W"); t[m.home].results.push("L"); }
+    else { t[m.home].tie++; t[m.away].tie++; t[m.home].results.push("T"); t[m.away].results.push("T"); }
+  });
+  const arr=Object.values(t).map(x=>{ const gp=x.w+x.l+x.tie; x.pct=gp?(x.w+x.tie*0.5)/gp:0; x.diff=x.pf-x.pa; x.streak=calcStreak(x.results); return x; });
+  arr.sort((a,b)=> b.pct-a.pct || b.diff-a.diff || b.pf-a.pf);
+  return arr;
+}
+function calcStreak(res){ if(!res.length) return "—"; const last=res[res.length-1]; let n=0; for(let i=res.length-1;i>=0;i--){ if(res[i]===last) n++; else break; } return last+n; }
+
+function renderStandings(){
+  $("#standingsBody").innerHTML = computeStandings().map((p,i)=>{
+    const rk=i+1, cls=rk<=3?"r"+rk:"", sc=p.streak.startsWith("W")?"w":p.streak.startsWith("L")?"l":"";
+    return `<tr class="clickable" data-player="${p.name.replace(/"/g,'&quot;')}">
+      <td class="rank ${cls}">${rk}</td>
+      <td class="name">${logoTag(p)}${p.name} <span class="meta">${p.team}</span></td>
+      <td class="w">${p.w}</td><td class="l">${p.l}</td>
+      <td>${p.pct.toFixed(3).replace(/^0/,"")}</td>
+      <td>${p.pf}</td><td>${p.pa}</td>
+      <td class="${p.diff>=0?'w':'l'}">${p.diff>0?'+':''}${p.diff}</td>
+      <td class="streak ${sc}">${p.streak}</td>
+    </tr>`;
+  }).join("");
+}
+function renderResults(){
+  const g=gamesForSeason().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  $("#results").innerHTML = g.length? g.map(m=>{
+    const h=byName(m.home), a=byName(m.away), hw=m.hs>m.as, aw=m.as>m.hs;
+    const vid = m.video? `<a class="vidlink" href="${m.video}" target="_blank">▶ WATCH</a>`:"";
+    return `<div class="game" data-gid="${m._id}">
+      <div class="matchup">
+        <span class="${aw?'w':''}">${logoTag(a)}${m.away} <span class="meta">${a.team}</span></span>
+        <span class="score">${m.as}</span><span class="meta">@</span><span class="score">${m.hs}</span>
+        <span class="${hw?'w':''}">${logoTag(h)}${m.home} <span class="meta">${h.team}</span></span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">${vid}<span class="badge">${m.date}</span></div>
+    </div>`;
+  }).join("") : `<div class="empty">No games played yet.</div>`;
+}
+function renderUpcoming(){
+  $("#upcoming").innerHTML = UPCOMING.length? UPCOMING.map(m=>{
+    const h=byName(m.home), a=byName(m.away);
+    return `<div class="game">
+      <div class="matchup">
+        <span>${logoTag(a)}${m.away} <span class="meta">${a.team}</span></span>
+        <span class="meta">vs</span>
+        <span>${logoTag(h)}${m.home} <span class="meta">${h.team}</span></span>
+      </div>
+      <div class="meta">${m.date} · ${m.time||""}</div>
+    </div>`;
+  }).join("") : `<div class="empty">No games scheduled.</div>`;
+}
+function renderVideos(){
+  $("#videos").innerHTML = VIDEOS.length? VIDEOS.map(v=>`
+    <div class="vid">
+      <div class="embed"><iframe src="${toEmbed(v.url)}" allowfullscreen loading="lazy"></iframe></div>
+      <div class="cap"><h4>${v.title}</h4><p>${v.by?'by '+v.by:''}</p></div>
+    </div>`).join("") : `<div class="empty">No highlights posted yet. Drop your stream clips here.</div>`;
+}
+function color(str){ let h=0; for(let i=0;i<str.length;i++) h=str.charCodeAt(i)+((h<<5)-h); return `hsl(${h%360},70%,60%)`; }
+function renderTrash(){
+  $("#trashWall").innerHTML = TRASH.length? TRASH.map(t=>`
+    <div class="talk">
+      <div class="avatar" style="background:${color(t.who)}">${(t.who[0]||'?').toUpperCase()}</div>
+      <div class="body"><span class="who">${t.who}<span class="when">${t.when}</span></span><div class="msg">${t.msg}</div></div>
+    </div>`).join("") : `<div class="empty">Wall's quiet. Too quiet.</div>`;
+}
+function ensureIds(){ GAMES.forEach(function(g,i){ if(g._id==null) g._id=i; }); }
+function renderAll(){ ensureIds(); populateSeasons(); renderStandings(); renderResults(); renderUpcoming(); renderVideos(); renderTrash(); }
+
+/* ---- head-to-head ---- */
+function openH2H(name){
+  const me=byName(name);
+  const games=gamesForSeason().filter(m=>m.home===name||m.away===name);
+  const opp={}; let W=0,L=0,T=0;
+  games.sort((a,b)=>(b.date||"").localeCompare(a.date||"")).forEach(m=>{
+    const isHome=m.home===name, mine=isHome?m.hs:m.as, theirs=isHome?m.as:m.hs, oName=isHome?m.away:m.home;
+    if(!opp[oName]) opp[oName]={w:0,l:0,t:0,games:[]};
+    let res; if(mine>theirs){W++;opp[oName].w++;res="w";} else if(mine<theirs){L++;opp[oName].l++;res="l";} else {T++;opp[oName].t++;res="";}
+    opp[oName].games.push({mine,theirs,res,gid:m._id});
+  });
+  const rows=Object.keys(opp).sort().map(o=>{
+    const r=opp[o], rec=r.w+"-"+r.l+(r.t?"-"+r.t:"");
+    const scores=r.games.map(g=>`<span class="h2h-score jump ${g.res}" data-gid="${g.gid}" onclick="jumpToGame(event,${g.gid})" title="Jump to this game on the scores list">${g.mine}-${g.theirs}</span>`).join(" ");
+    return `<tr><td class="name">${logoTag(byName(o))}${o}</td><td><b>${rec}</b></td><td style="text-align:left">${scores}</td></tr>`;
+  }).join("");
+  const totalRec=W+"-"+L+(T?"-"+T:"");
+  $("#h2hBody").innerHTML=`
+    <h3>${logoTag(me)}${name} <span class="meta" style="font-size:14px">${me.team||""}</span></h3>
+    <div class="h2h-overall">${currentSeason} record: <b>${totalRec}</b> &middot; ${games.length} game${games.length===1?"":"s"}</div>
+    ${games.length? `<table class="h2h-table"><thead><tr><th class="name">Opponent</th><th>Record</th><th style="text-align:left">Scores (most recent first)</th></tr></thead><tbody>${rows}</tbody></table>`
+                  : `<div class="empty">No games yet${currentSeason!=="All-Time"?" this season":""}.</div>`}`;
+  $("#h2hModal").classList.add("show");
+}
+function closeH2H(){ $("#h2hModal").classList.remove("show"); }
+function jumpToGame(ev, gid){
+  if(ev) ev.stopPropagation();
+  closeH2H();
+  var btn=document.querySelector('nav button[data-tab="schedule"]');
+  if(btn) btn.click();
+  setTimeout(function(){
+    var el=document.querySelector('#results .game[data-gid="'+gid+'"]');
+    if(el){ el.scrollIntoView({behavior:"smooth",block:"center"});
+      el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+  }, 80);
+}
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeH2H(); });
+document.addEventListener("click",e=>{ const tr=e.target.closest("#standingsBody tr.clickable"); if(tr) openH2H(tr.dataset.player); });
+
+document.querySelectorAll("nav button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll("section").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active"); $("#"+b.dataset.tab).classList.add("active");
+  });
+});
+renderAll();   // show built-in data instantly
+loadData();    // then upgrade to live sheet data if configured
+</script>
+</body>
+</html>
