@@ -100,6 +100,15 @@
   .h2h-score.jump:hover{border-color:var(--accent2);color:var(--gold);transform:translateY(-1px)}
   .game.flash{animation:flashgame 1.8s ease}
   @keyframes flashgame{0%{background:rgba(58,107,255,.45)}40%{background:rgba(58,107,255,.25)}100%{background:transparent}}
+  .champ{display:flex;align-items:center;gap:16px;background:linear-gradient(90deg,rgba(58,107,255,.18),rgba(226,32,45,.14));border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:16px}
+  .champ .trophy{font-size:40px;line-height:1}
+  .champ .clab{color:var(--gold);font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700}
+  .champ .cname{font-size:24px;font-weight:900;margin-top:2px}
+  .champ .cmeta{color:var(--muted);font-size:14px;font-weight:400}
+  .champ .cscore{color:var(--muted);font-size:12px;margin-top:2px}
+  .bowlgroup .bowlhdr{background:var(--panel2);color:var(--gold);font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:800;padding:8px 16px;border-top:1px solid var(--line)}
+  .bowlgroup:first-child .bowlhdr{border-top:none}
+  .titles{font-size:13px;letter-spacing:-2px;margin:0 2px;white-space:nowrap}
   @media(max-width:560px){.logo{font-size:40px}.score{font-size:17px}.hint{display:none}}
 </style>
 </head>
@@ -116,6 +125,7 @@
 <nav>
   <button data-tab="standings" class="active">Standings</button>
   <button data-tab="schedule">Schedule &amp; Results</button>
+  <button data-tab="postseason">Postseason</button>
   <button data-tab="highlights">Highlights</button>
   <button data-tab="trash">Trash Talk</button>
 </nav>
@@ -146,6 +156,12 @@
     <div class="panel" style="margin-bottom:20px"><div id="upcoming"></div></div>
     <h2 style="font-size:18px;border-color:var(--accent2)">Final Scores</h2>
     <div class="panel"><div id="results"></div></div>
+  </section>
+
+  <section id="postseason">
+    <h2>Postseason</h2>
+    <div id="champBanner"></div>
+    <div class="panel"><div id="bowlResults"></div></div>
   </section>
 
   <section id="highlights">
@@ -267,7 +283,7 @@ function populateSeasons(){
   else if(sel.dataset.init!=="1") currentSeason=seasons[seasons.length-1]; // default to latest season first load
   sel.innerHTML=[...seasons.map(s=>`<option value="${s}">${s}</option>`),`<option value="All-Time">All-Time</option>`].join("");
   sel.value=currentSeason;
-  if(sel.dataset.init!=="1"){ sel.addEventListener("change",()=>{ currentSeason=sel.value; renderStandings(); renderResults(); }); sel.dataset.init="1"; }
+  if(sel.dataset.init!=="1"){ sel.addEventListener("change",()=>{ currentSeason=sel.value; renderStandings(); renderResults(); renderPostseason(); }); sel.dataset.init="1"; }
 }
 
 /* ---- CSV reading ---- */
@@ -331,7 +347,7 @@ async function loadData(){
     routed.games.forEach(r=>{ if(!r.home||!r.away) return;
       const hs=r.home_score, as=r.away_score;
       const done = hs!==""&&as!==""&&!isNaN(+hs)&&!isNaN(+as);
-      if(done) GAMES.push({date:r.date||"",home:resolveTeam_(r.home),away:resolveTeam_(r.away),hs:+hs,as:+as,video:r.video||"",season:(r.season||"").trim()});
+      if(done) GAMES.push({date:r.date||"",home:resolveTeam_(r.home),away:resolveTeam_(r.away),hs:+hs,as:+as,video:r.video||"",season:(r.season||"").trim(),round:(r.round||"").trim()});
       else UPCOMING.push({date:r.date||"",home:resolveTeam_(r.home),away:resolveTeam_(r.away),time:r.time||""});
     }); ok=true; }
   if(routed.highlights){ VIDEOS=routed.highlights.map(r=>({title:r.title||"Highlight",by:r.by||"",url:r.url})).filter(v=>v.url); ok=true; }
@@ -361,12 +377,18 @@ function computeStandings(){
 }
 function calcStreak(res){ if(!res.length) return "—"; const last=res[res.length-1]; let n=0; for(let i=res.length-1;i>=0;i--){ if(res[i]===last) n++; else break; } return last+n; }
 
+function championCounts(){
+  const t={};
+  GAMES.forEach(function(m){ if(/national\s*champ|natty|title/i.test(m.round||"")){ const w=m.hs>m.as?m.home:m.away; if(w) t[w]=(t[w]||0)+1; } });
+  return t;
+}
 function renderStandings(){
+  const champs=championCounts();
   $("#standingsBody").innerHTML = computeStandings().map((p,i)=>{
     const rk=i+1, cls=rk<=3?"r"+rk:"", sc=p.streak.startsWith("W")?"w":p.streak.startsWith("L")?"l":"";
     return `<tr class="clickable" data-player="${p.name.replace(/"/g,'&quot;')}">
       <td class="rank ${cls}">${rk}</td>
-      <td class="name">${logoTag(p)}${p.name} <span class="meta">${p.team}</span></td>
+      <td class="name">${logoTag(p)}${p.name}${champs[p.name]?` <span class="titles" title="${champs[p.name]}\u00d7 National Champion">${"\ud83c\udfc6".repeat(champs[p.name])}</span>`:""} <span class="meta">${p.team}</span></td>
       <td class="w">${p.w}</td><td class="l">${p.l}</td>
       <td>${p.pct.toFixed(3).replace(/^0/,"")}</td>
       <td>${p.pf}</td><td>${p.pa}</td>
@@ -418,8 +440,49 @@ function renderTrash(){
       <div class="body"><span class="who">${t.who}<span class="when">${t.when}</span></span><div class="msg">${t.msg}</div></div>
     </div>`).join("") : `<div class="empty">Wall's quiet. Too quiet.</div>`;
 }
+function renderPostseason(){
+  const bowls=gamesForSeason().filter(m=>m.round);
+  const cb=$("#champBanner"), br=$("#bowlResults");
+  if(!cb||!br) return;
+  const champ=bowls.find(m=>/national\s*champ|natty|title/i.test(m.round));
+  if(champ){
+    const wh=champ.hs>champ.as;
+    const wname=wh?champ.home:champ.away, wsc=wh?champ.hs:champ.as;
+    const lname=wh?champ.away:champ.home, lsc=wh?champ.as:champ.hs;
+    const wp=byName(wname);
+    const lbl=currentSeason==="All-Time"?"National Champions":currentSeason+" National Champion";
+    cb.innerHTML=`<div class="champ"><div class="trophy">🏆</div><div>`
+      +`<div class="clab">${lbl}</div>`
+      +`<div class="cname">${logoTag(wp)}${wname} <span class="cmeta">${wp.team||""}</span></div>`
+      +`<div class="cscore">def. ${lname} ${wsc}–${lsc}</div></div></div>`;
+  } else cb.innerHTML="";
+  if(!bowls.length){ br.innerHTML=`<div class="empty">No postseason games yet. Add a Round value (e.g. "Peach Bowl", "National Championship") to a game in your sheet.</div>`; return; }
+  function rank(r){ r=(r||"").toLowerCase();
+    if(/national/.test(r))return 0;
+    if(/orange|sugar|semi/.test(r))return 1;
+    if(/peach|rose|fiesta|cotton|quarter/.test(r))return 2;
+    if(/first round|cfp/.test(r))return 3;
+    if(/bowl/.test(r))return 4;
+    if(/conf/.test(r))return 5;
+    return 6; }
+  const groups={};
+  bowls.forEach(m=>{ (groups[m.round]=groups[m.round]||[]).push(m); });
+  const order=Object.keys(groups).sort((a,b)=>rank(a)-rank(b)||a.localeCompare(b));
+  br.innerHTML=order.map(rnd=>{
+    const rows=groups[rnd].map(m=>{
+      const h=byName(m.home),a=byName(m.away),hw=m.hs>m.as,aw=m.as>m.hs;
+      const vid=m.video?`<a class="vidlink" href="${m.video}" target="_blank">▶ WATCH</a>`:"";
+      return `<div class="game"><div class="matchup">`
+        +`<span class="${aw?'w':''}">${logoTag(a)}${m.away} <span class="meta">${a.team}</span></span>`
+        +`<span class="score">${m.as}</span><span class="meta">@</span><span class="score">${m.hs}</span>`
+        +`<span class="${hw?'w':''}">${logoTag(h)}${m.home} <span class="meta">${h.team}</span></span>`
+        +`</div><div style="display:flex;gap:10px;align-items:center">${vid}<span class="badge">${m.date||""}</span></div></div>`;
+    }).join("");
+    return `<div class="bowlgroup"><div class="bowlhdr">${rnd}</div>${rows}</div>`;
+  }).join("");
+}
 function ensureIds(){ GAMES.forEach(function(g,i){ if(g._id==null) g._id=i; }); }
-function renderAll(){ ensureIds(); populateSeasons(); renderStandings(); renderResults(); renderUpcoming(); renderVideos(); renderTrash(); }
+function renderAll(){ ensureIds(); populateSeasons(); renderStandings(); renderResults(); renderPostseason(); renderUpcoming(); renderVideos(); renderTrash(); }
 
 /* ---- head-to-head ---- */
 function openH2H(name){
